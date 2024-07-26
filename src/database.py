@@ -38,7 +38,7 @@ class Base(DeclarativeBase):
         cols = [f'{j}={getattr(self, j)}' for i,j in enumerate(self.__table__.columns.keys()) if j in self.repr_cols or i < self.repr_cols_num]
         return f"<{self.__class__.__name__}> {', '.join(cols)}"
 
-# async def get_123():  # рабочий контекстный менеджер!!
+# async def get_123():  
 #     async with async_engin.connect() as start:
 #         res = await start.execute(text("SELECT 1,2,3 union select 4,5,6"))
 #         print(f"{res.all()=}")
