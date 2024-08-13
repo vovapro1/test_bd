@@ -8,7 +8,7 @@ from sqlalchemy.orm import aliased, joinedload, selectinload, contains_eager
 class Work_Table_ORM():
     @staticmethod
     def create_table():
-        engin.echo = False  # отключаем логи на период дропа таблиц
+        engin.echo = True  # отключаем логи на период дропа таблиц
         Base.metadata.drop_all(engin)
         Base.metadata.create_all(engin)
         engin.echo = True
@@ -40,14 +40,10 @@ class Work_Table_ORM():
     @staticmethod
     def insert_resum():
         with session() as ses:
-            worker_volk = ResumesORM(
-                title='Python junior', price=50_000, workload='fulltime', worker_id=1)
-            worker_volk2 = ResumesORM(
-                title='Python разработчик', price=100_000, workload='fulltime', worker_id=1)
-            worker_volk1 = ResumesORM(
-                title='Python midle', price=150_000, workload='parttime', worker_id=2)
-            worker_bobr = ResumesORM(
-                title='Архитектор БД', price=250_000, workload='fulltime', worker_id=2)
+            worker_volk = ResumesORM(title='Python junior', price=50_000, workload='fulltime', worker_id=1)
+            worker_volk2 = ResumesORM(title='Python разработчик', price=100_000, workload='fulltime', worker_id=1)
+            worker_volk1 = ResumesORM(title='Python midle', price=150_000, workload='parttime', worker_id=2)
+            worker_bobr = ResumesORM(title='Архитектор БД', price=250_000, workload='fulltime', worker_id=2)
             ses.add_all((worker_volk, worker_volk1, worker_volk2, worker_bobr))
             ses.commit()
     """
@@ -218,9 +214,6 @@ class Work_Table_ORM():
             )
             res = ses.execute(query)
             result = res.unique().all()
-<<<<<<< HEAD
             print(f"{result=}")
-=======
         return result
->>>>>>> 50ec112 (Add point)
             

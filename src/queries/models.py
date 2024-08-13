@@ -1,5 +1,6 @@
 import datetime
 from sqlalchemy import TIMESTAMP, CheckConstraint, Enum, ForeignKey, Index, PrimaryKeyConstraint, Table, Column, Integer, String, MetaData, func, text
+from traitlets import Int
 from database import Base, str_256
 from sqlalchemy.orm import Mapped, mapped_column, relationship 
 import enum
@@ -7,8 +8,10 @@ from typing import Annotated
 
 # добавление Аннотации для сокращения кода (!)
 intpk = Annotated[int, mapped_column(primary_key=True)]
+
 created_at = Annotated[datetime.datetime, mapped_column(
     server_default=text("TIMEZONE('utc', now())"))]
+
 updated_at = Annotated[datetime.datetime, mapped_column(
     server_default=text("TIMEZONE('utc', now())"),
     onupdate=datetime.datetime.utcnow)]
@@ -40,7 +43,7 @@ class Workload(enum.Enum):
 class ResumesORM(Base):
     __tablename__ = "resume"
     # intpk не применяется здесь для наглядности длинны кода без сокращения
-    ID: Mapped[int] = mapped_column(primary_key=True)
+    ID: Mapped[intpk]
     title: Mapped[str_256]
     price: Mapped[int | None]
     workload: Mapped[Workload]
@@ -58,8 +61,8 @@ class ResumesORM(Base):
 
     __table_args__ = (             #Индексы и ограничения лучше задавать здесь
         Index("title_index", "title"),           #название индекса, через запятую индексируемые стобцы 
-        CheckConstraint("price > 0", name="chek_price_positiv"),
-        PrimaryKeyConstraint("ID", "title")          #возможность добавить РК 
+        CheckConstraint("price > 0", name="chek_price_positiv"),            #ограничение по конкретному параметру
+        # PrimaryKeyConstraint("title", "ID")          #возможность добавить РК 13/08/2024 ЭТА СТРОЧКА не дает забивать данные в таблицу
     )
 
 
