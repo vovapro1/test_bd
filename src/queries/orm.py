@@ -218,5 +218,9 @@ class Work_Table_ORM():
             )
             res = ses.execute(query)
             result = res.unique().all()
+<<<<<<< HEAD
             print(f"{result=}")
+=======
+        return result
+>>>>>>> 50ec112 (Add point)
             
