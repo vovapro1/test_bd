@@ -51,7 +51,7 @@ class Work_Table():
             print(f'{workers=}')
 
     @staticmethod
-    def update_workers(item: int = 2, new_username: str = "SLON"):
+    def update_workers(item: int = 3, new_username: str = "SLON"):
         with engin.connect() as conn:
             # stmt = text("UPDATE workers SET username=:username WHERE id=:ID")  сырой запрос
             # stmt = stmt.bindparams(username=new_username, ID=item)

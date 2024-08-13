@@ -218,5 +218,6 @@ class Work_Table_ORM():
             )
             res = ses.execute(query)
             result = res.unique().all()
-        return result
+            print(f"{result=}")
+        # return result
             

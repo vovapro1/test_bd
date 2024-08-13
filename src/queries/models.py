@@ -1,14 +1,17 @@
 import datetime
+from typing import Annotated
 from sqlalchemy import TIMESTAMP, CheckConstraint, Enum, ForeignKey, Index, PrimaryKeyConstraint, Table, Column, Integer, String, MetaData, func, text
 from database import Base, str_256
 from sqlalchemy.orm import Mapped, mapped_column, relationship 
 import enum
-from typing import Annotated
+
 
 # добавление Аннотации для сокращения кода (!)
 intpk = Annotated[int, mapped_column(primary_key=True)]
+
 created_at = Annotated[datetime.datetime, mapped_column(
     server_default=text("TIMEZONE('utc', now())"))]
+
 updated_at = Annotated[datetime.datetime, mapped_column(
     server_default=text("TIMEZONE('utc', now())"),
     onupdate=datetime.datetime.utcnow)]
@@ -20,17 +23,17 @@ class WorkersORM(Base):  # декларативный стиль создани�
     worker_id: Mapped[intpk]
     username: Mapped[str]
 
-    resumes:Mapped[list["ResumesORM"]] = relationship(
-        back_populates="worker",        #явное создание связи между таблицами. Наличие синтаксиса необходимо в каждой связанной таблице
-          # backref="worker",                   #неявное создание связи. Автоматически "создает" ситаксис для обратной связи в связуемой таблице (НЕ РЕКОМЕНДУЕТСЯ (ПО ДОКУМЕНТАЦИИ))
-    )
+    # resumes:Mapped[list["ResumesORM"]] = relationship(
+    #     back_populates="worker",        #явное создание связи между таблицами. Наличие синтаксиса необходимо в каждой связанной таблице
+    #       # backref="worker",                   #неявное создание связи. Автоматически "создает" ситаксис для обратной связи в связуемой таблице (НЕ РЕКОМЕНДУЕТСЯ (ПО ДОКУМЕНТАЦИИ))
+    # )
 
-    best_resumes:Mapped[list["ResumesORM"]] = relationship(
-        back_populates="worker",        #явное создание связи между таблицами. Наличие синтаксиса необходимо в каждой связанной таблице
-        primaryjoin= "and_(WorkersORM.worker_id == ResumesORM.worker_id, ResumesORM.workload == 'parttime')" ,  # backref="worker",   #неявное создание связи. Автоматически "создает" ситаксис для обратной связи в связуемой таблице (НЕ РЕКОМЕНДУЕТСЯ (ПО ДОКУМЕНТАЦИИ))
-        order_by="ResumesORM.ID.desc()",        #lazy="selectin" Неявная установка метода подгрузки (orm.select_wokers_with_reletionship() строка с .options(selectinload(WorkersORM.best_resumes)) становится ненужна)
+    # best_resumes:Mapped[list["ResumesORM"]] = relationship(
+    #     back_populates="worker",        #явное создание связи между таблицами. Наличие синтаксиса необходимо в каждой связанной таблице
+    #     primaryjoin= "and_(WorkersORM.worker_id == ResumesORM.worker_id, ResumesORM.workload == 'parttime')" ,  # backref="worker",   #неявное создание связи. Автоматически "создает" ситаксис для обратной связи в связуемой таблице (НЕ РЕКОМЕНДУЕТСЯ (ПО ДОКУМЕНТАЦИИ))
+    #     order_by="ResumesORM.ID.desc()",        #lazy="selectin" Неявная установка метода подгрузки (orm.select_wokers_with_reletionship() строка с .options(selectinload(WorkersORM.best_resumes)) становится ненужна)
         
-    )
+    # )
 
 class Workload(enum.Enum):
     parttime = "parttime"
@@ -39,8 +42,7 @@ class Workload(enum.Enum):
 
 class ResumesORM(Base):
     __tablename__ = "resume"
-    # intpk не применяется здесь для наглядности длинны кода без сокращения
-    ID: Mapped[int] = mapped_column(primary_key=True)
+    ID: Mapped[intpk]
     title: Mapped[str_256]
     price: Mapped[int | None]
     workload: Mapped[Workload]
@@ -49,18 +51,18 @@ class ResumesORM(Base):
     created_at: Mapped[created_at]
     updated_at: Mapped[updated_at] # (!)
 
-    worker:Mapped["WorkersORM"] = relationship(
-        back_populates="resumes",
-    )
+    # worker:Mapped["WorkersORM"] = relationship(
+    #     back_populates="resumes",
+    # )
 
-    repr_cols_num = 4
-    repr_cols = ("updated_at",)
+    # repr_cols_num = 4
+    # repr_cols = ("updated_at",)
 
-    __table_args__ = (             #Индексы и ограничения лучше задавать здесь
-        Index("title_index", "title"),           #название индекса, через запятую индексируемые стобцы 
-        CheckConstraint("price > 0", name="chek_price_positiv"),
-        PrimaryKeyConstraint("ID", "title")          #возможность добавить РК 
-    )
+    # __table_args__ = (             #Индексы и ограничения лучше задавать здесь
+    #     Index("title_index", "title"),           #название индекса, через запятую индексируемые стобцы 
+    #     CheckConstraint("price > 0", name="chek_price_positiv"),
+    #     PrimaryKeyConstraint("ID", "title")          #возможность добавить РК 
+    # )
 
 
 meta = MetaData()
