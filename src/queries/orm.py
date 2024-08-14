@@ -3,7 +3,7 @@ from sqlalchemy import Integer, and_, cast, func, select, text, insert
 from database import engin, async_engin, session, Base
 from queries.models import WorkersORM, ResumesORM
 from sqlalchemy.orm import aliased, joinedload, selectinload, contains_eager
-
+from schemas import WorkersGetDTO, WorkersRelDTO
 
 class Work_Table_ORM():
     @staticmethod
@@ -216,4 +216,33 @@ class Work_Table_ORM():
             result = res.unique().all()
             print(f"{result=}")
         return result
+    
+    @staticmethod
+    def easy_select():
+        with session() as ses:
+            query = (
+                select(WorkersORM)
+                .limit(2)
+            )
+
+            res = ses.execute(query)
+            result_orm = res.scalars().all()
+            print(f"{result_orm=}")
+            result_dto = [WorkersGetDTO.model_validate(i, from_attributes=True) for i in result_orm]
+            print(f"{result_dto=}")
+
+    @staticmethod
+    def hard_select():
+        with session() as ses:
+            query = (
+                select(WorkersORM)
+                .options(selectinload(WorkersORM.resumes))
+                .limit(2)
+            )
+
+            res = ses.execute(query)
+            result_orm = res.scalars().all()
+            print(f"{result_orm=}")
+            result_dto = [WorkersRelDTO.model_validate(i, from_attributes=True) for i in result_orm]
+            print(f"{result_dto=}")
             

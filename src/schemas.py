@@ -6,24 +6,24 @@ from queries.models import Workload
 class WorkersPostDTO(BaseModel):
     username : str
 
-class WorkersDTO(WorkersPostDTO):
-    id : int
+class WorkersGetDTO(WorkersPostDTO):
+    worker_id : int
 
-class ResumeAddDTO(BaseModel):
+class ResumePostDTO(BaseModel):
     title : str
     price : Optional[int]
     workload : Workload
     worker_id : int
 
-class ResumeDTO(ResumeAddDTO):               #DTO = Data Transfer Object, Обьект для передачи даннх между слоями/сервисами приложениями
+class ResumeGetDTO(ResumePostDTO):               #DTO = Data Transfer Object, Обьект для передачи даннх между слоями/сервисами приложениями
     id : int
     create_at : datetime
     update_at : datetime
 
-class ResumeRelDTO(ResumeDTO):
+class ResumeRelDTO(ResumeGetDTO):
     worker : "WorkersPostDTO"
 
-class WorkersRelDTO(WorkersDTO):
-    resumes : list["ResumeAddDTO"]
+class WorkersRelDTO(WorkersGetDTO):
+    resumes : list["ResumePostDTO"]
 
 

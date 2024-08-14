@@ -24,7 +24,7 @@ class Work_Table():
         engin.echo = False  # отключаем логи на период дропа таблиц
         meta.drop_all(engin)
         meta.create_all(engin)
-        engin.echo = True
+        engin.echo = False
 
     @staticmethod
     def insert_data():
