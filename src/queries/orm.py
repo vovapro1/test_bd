@@ -1,9 +1,10 @@
+from turtle import title
 from unittest import result
 from sqlalchemy import Integer, and_, cast, func, select, text, insert
 from database import engin, async_engin, session, Base
-from queries.models import WorkersORM, ResumesORM
+from queries.models import VacansiORM, WorkersORM, ResumesORM
 from sqlalchemy.orm import aliased, joinedload, selectinload, contains_eager
-from schemas import WorkersGetDTO, WorkersRelDTO
+from schemas import DTO_select, ResumeRelVacansisRelDTO, WorkersGetDTO, WorkersRelDTO
 
 class Work_Table_ORM():
     @staticmethod
@@ -11,7 +12,7 @@ class Work_Table_ORM():
         engin.echo = True  # отключаем логи на период дропа таблиц
         Base.metadata.drop_all(engin)
         Base.metadata.create_all(engin)
-        engin.echo = True
+        engin.echo = False
 
     @staticmethod
     def insert_data():
@@ -245,4 +246,68 @@ class Work_Table_ORM():
             print(f"{result_orm=}")
             result_dto = [WorkersRelDTO.model_validate(i, from_attributes=True) for i in result_orm]
             print(f"{result_dto=}")
-            
+            return result_dto
+
+    @staticmethod
+    def DTO_select():
+        with session() as ses:
+            query = (
+                select(
+                    ResumesORM.workload,
+                    cast(func.avg(ResumesORM.price),
+                         Integer).label("avg_price")
+                )
+                # сообщаем из какой таблицы делаем запрос
+                .select_from(ResumesORM)
+                .filter(and_(
+                    ResumesORM.title.contains("Python"),
+                    ResumesORM.price > 40_000
+                ))  # .filter_by(id = 1, price >= 40_000) принимает конкретные значения конкретных столбцов
+                .group_by(ResumesORM.workload)
+                # .having(cast(func.avg(ResumesORM.price), Integer) > 70_000)
+            )
+            # print(query)
+            # print(query.compile(compile_kwargs={"literal_binds": True}))      #такой же запрос с уточненными именами переменных в запросе
+            res = ses.execute(query)
+            result_orm = res.all()
+            print(f"{result_orm=}")  
+            result_dto = [DTO_select.model_validate(i, from_attributes=True) for i in result_orm] 
+            print(f"{result_dto=}")
+            return result_dto
+        
+    @staticmethod
+    def add_vacasis():
+        with session() as ses:
+            new_vacansis = VacansiORM(title= "Python junior", price = 100_000)
+            resume1 = ses.get(ResumesORM, 1)
+            resume2 = ses.get(ResumesORM, 2)
+            resume1.resume_answer.append(new_vacansis)
+            resume2.resume_answer.append(new_vacansis)
+            ses.commit()
+
+    @staticmethod
+    def select_users_with_resume():
+        with session() as ses:
+            query = (
+            select(ResumesORM)
+            .options(joinedload(ResumesORM.worker))
+            .options(selectinload(ResumesORM.resume_answer))       #опционально можно сделать ...ResumesORM.vacansis_answer)load_only(Vacansii.title)
+            )
+            res = ses.execute(query)
+            result_orm = res.unique().scalars().all()
+            print(f"{result_orm=}")
+
+    @staticmethod
+    def select_resume_with_workersDTO():
+        with session() as ses:
+            query = (
+            select(ResumesORM)
+            .options(joinedload(ResumesORM.worker))
+            .options(selectinload(ResumesORM.resume_answer))       #опционально можно сделать ...ResumesORM.vacansis_answer)load_only(Vacansii.title)
+            )
+            res = ses.execute(query)
+            result_orm = res.unique().scalars().all()
+            print(f"{result_orm=}")
+            result_DTO = [ResumeRelVacansisRelDTO.model_validate(i, from_attributes=True) for i in result_orm]
+            print(f"{result_DTO=}")
+            return result_DTO

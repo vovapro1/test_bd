@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
-from queries.models import Workload
+from queries.models import WorkersORM, Workload
 
 class WorkersPostDTO(BaseModel):
     username : str
@@ -26,4 +26,18 @@ class ResumeRelDTO(ResumeGetDTO):
 class WorkersRelDTO(WorkersGetDTO):
     resumes : list["ResumePostDTO"]
 
+class DTO_select(BaseModel):
+    workload : Workload
+    avg_price : int
+
+class VacansisPostDTO(BaseModel):
+    title : str
+    price : Optional[int]
+
+class VacansisGetDTO(VacansisPostDTO):
+    id : int
+
+class ResumeRelVacansisRelDTO(ResumePostDTO):
+    worker : "WorkersPostDTO"
+    resume_answer : list["VacansisPostDTO"]
 
