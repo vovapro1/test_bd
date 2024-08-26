@@ -67,7 +67,7 @@ class ResumesORM(Base):
     __table_args__ = (             #Индексы и ограничения лучше задавать здесь
         Index("title_index", "title"),           #название индекса, через запятую индексируемые стобцы 
         CheckConstraint("price > 0", name="chek_price_positiv"),            #ограничение по конкретному параметру
-        # PrimaryKeyConstraint("title", "ID")          #возможность добавить РК 13/08/2024 ЭТА СТРОЧКА не дает забивать данные в таблицу
+        # PrimaryKeyConstraint("title", "ID")          #возможность добавить РК 13/08/2024 ЭТА СТРОЧКА не дает забивать данные в таблицу1
     )
 
 class VacansiORM(Base):
