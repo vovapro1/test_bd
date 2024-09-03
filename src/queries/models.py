@@ -1,4 +1,5 @@
 import datetime
+from pydantic import BaseModel
 from sqlalchemy import TIMESTAMP, CheckConstraint, Enum, ForeignKey, Index, PrimaryKeyConstraint, Table, Column, Integer, String, MetaData, func, text
 from traitlets import Int
 from database import Base, str_256
@@ -39,7 +40,6 @@ class Workload(enum.Enum):
     parttime = "parttime"
     fulltime = "fulltime"
 
-
 class ResumesORM(Base):
     __tablename__ = "resume"
     # intpk не применяется здесь для наглядности длинны кода без сокращения
@@ -58,7 +58,7 @@ class ResumesORM(Base):
 
     resume_answer : Mapped[list["VacansiORM"]] = relationship(
         back_populates="resumes_ans",
-        secondary="vacansis_answer"
+        secondary="vacansis_answe",
     )
 
     repr_cols_num = 4
@@ -67,7 +67,6 @@ class ResumesORM(Base):
     __table_args__ = (             #Индексы и ограничения лучше задавать здесь
         Index("title_index", "title"),           #название индекса, через запятую индексируемые стобцы 
         CheckConstraint("price > 0", name="chek_price_positiv"),            #ограничение по конкретному параметру
-        # PrimaryKeyConstraint("title", "ID")          #возможность добавить РК 13/08/2024 ЭТА СТРОЧКА не дает забивать данные в таблицу1
     )
 
 class VacansiORM(Base):
@@ -79,13 +78,11 @@ class VacansiORM(Base):
 
     resumes_ans : Mapped[list["ResumesORM"]] = relationship(
         back_populates="resume_answer",              #vacansii СВЯЗАНЫ с ResumesORM ЧЕРЕЗ vacansis_answer (связь в ResumesORM.resume_answer)
-        secondary="vacansis_answer"                 #Имя таблицы ЧЕРЕЗ которую делается связь м2м
+        secondary="vacansis_answe",                 #Имя таблицы ЧЕРЕЗ которую делается связь м2м
 
     )
-
-
 class Vacansis_answer(Base):
-    __tablename__ = "vacansis_answer"
+    __tablename__ = "vacansis_answe"
     resume_id : Mapped[int] = mapped_column(
         ForeignKey("resume.ID", ondelete="CASCADE"),
         primary_key=True,
@@ -94,7 +91,6 @@ class Vacansis_answer(Base):
         ForeignKey("vacansii.id", ondelete="CASCADE"),
         primary_key=True,
     )
-    
     cover_layer : Mapped[Optional[str]]
 
 

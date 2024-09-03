@@ -28,7 +28,8 @@ class Work_Table_ORM():
             qery = select(WorkersORM)
             result = ses.execute(qery)
             workers = result.scalars().all()
-            print(f'{workers=}')
+            print()
+            return f'{workers=}'
 
     @staticmethod
     def update_workers(item: int = 2, new_username: str = "AIST"):
@@ -307,7 +308,16 @@ class Work_Table_ORM():
             )
             res = ses.execute(query)
             result_orm = res.unique().scalars().all()
-            print(f"{result_orm=}")
+            # print(f"{result_orm=}")
             result_DTO = [ResumeRelVacansisRelDTO.model_validate(i, from_attributes=True) for i in result_orm]
-            print(f"{result_DTO=}")
+            # print(f"{result_DTO=}")
             return result_DTO
+
+class PostInfo():
+    @staticmethod
+    def add_workers(listname):
+        with session() as ses:
+            # answer = (WorkersORM(username = i) for i in listname.split())
+            ses.add_all(listname)
+            ses.commit()
+            return listname

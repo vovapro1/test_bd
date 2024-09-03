@@ -3,12 +3,12 @@ import os
 
 from fastapi import FastAPI
 import uvicorn
-from queries.orm import Work_Table_ORM
+from queries.orm import Work_Table_ORM, PostInfo
 from queries.core import Work_Table
 from fastapi.middleware.cors import CORSMiddleware
-
+from sqlalchemy.orm import Mapped
 sys.path.insert(1, os.path.join(sys.path[0], "..'"))
-
+from schemas import WorkersGetDTO
 
 # Work_Table.create_table()
 # Work_Table.insert_data()
@@ -34,6 +34,7 @@ sys.path.insert(1, os.path.join(sys.path[0], "..'"))
 # Work_Table_ORM.select_users_with_resume()
 # Work_Table_ORM.select_resume_with_workersDTO()
 
+
 def create_fastapi_app():
     app = FastAPI(title="FastAPI")
     app.add_middleware(
@@ -45,14 +46,19 @@ def create_fastapi_app():
     def get_workers():
         workers = Work_Table_ORM.hard_select()
         return workers
-    
+
     @app.get("/resume", tags=["Резюме"])
     def get_resum():
         resum = Work_Table_ORM.select_resume_with_workersDTO()
         return resum
+    
+    @app.post("/add_worker/", tags=['Добавить_работника'])
+    def post_workers(names:WorkersGetDTO):
+        a = PostInfo.add_workers(names)
+        return f'Пользователь "{a}" добавлен в базу'
 
     return app
-
+ 
 
 app = create_fastapi_app()
 
